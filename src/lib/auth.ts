@@ -4,12 +4,13 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-const rawSecret = process.env.NEXTAUTH_SECRET;
-if (!rawSecret) {
-  // Fail loudly so this is never silently skipped in production
-  throw new Error("NEXTAUTH_SECRET environment variable is not set. Add it to .env.local");
+// Lazily resolved at call-time (not at module load / build time)
+// so Next.js static analysis does not throw during `next build`.
+function getSecret(): Uint8Array {
+  const raw = process.env.NEXTAUTH_SECRET;
+  if (!raw) throw new Error("NEXTAUTH_SECRET environment variable is not set.");
+  return new TextEncoder().encode(raw);
 }
-const SECRET = new TextEncoder().encode(rawSecret);
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 12);
@@ -30,7 +31,7 @@ export async function createSession(userId: string) {
   const jwt = await new SignJWT({ userId, token })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("7d")
-    .sign(SECRET);
+    .sign(getSecret());
 
   const cookieStore = await cookies();
   cookieStore.set("session", jwt, {
@@ -51,7 +52,7 @@ export const getSession = cache(async () => {
   if (!jwt) return null;
 
   try {
-    const { payload } = await jwtVerify(jwt, SECRET);
+    const { payload } = await jwtVerify(jwt, getSecret());
     const { userId, token } = payload as { userId: string; token: string };
 
     const session = await prisma.session.findUnique({
@@ -72,7 +73,7 @@ export async function destroySession() {
 
   if (jwt) {
     try {
-      const { payload } = await jwtVerify(jwt, SECRET);
+      const { payload } = await jwtVerify(jwt, getSecret());
       const { token } = payload as { token: string };
       await prisma.session.deleteMany({ where: { token } });
     } catch {}

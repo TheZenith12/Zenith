@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
+// Use empty string fallback so proxy loads during build; secret is checked at request time
 const SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? "");
 
 /** Routes that require a valid session */

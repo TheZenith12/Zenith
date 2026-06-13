@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zenith
 
-## Getting Started
+Төсөл болон таскаа удирдах full-stack SaaS dashboard. Нэвтрэлт, багийн таск, аналитик, төлбөр, мэдэгдэл, удирдлагын самбартай.
 
-First, run the development server:
+## Технологи
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js (App Router) + TypeScript
+- Prisma ORM + libSQL / Turso (cloud SQLite) — production-д cloud, local-д better-sqlite3
+- NextAuth.js — нэвтрэлт (credentials)
+- Tailwind CSS + Radix UI
+- Recharts — аналитик график
+- Framer Motion — анимаци
+- Nodemailer — и-мэйл
+
+## Боломжууд
+
+- Бүртгэл, нэвтрэлт (NextAuth)
+- Төсөл, таск удирдлага
+- Dashboard, аналитик график
+- Төлбөр / billing
+- Мэдэгдэл (notification)
+- Дата экспорт хийх
+- Admin самбар — хэрэглэгч, статистик
+- Blog, docs хэсэг
+
+## Бүтэц
+
+```
+src/app/
+  (auth)/         login, register
+  (dashboard)/    dashboard, analytics, tasks, settings
+  admin/          удирдлагын самбар
+  api/            auth, projects, tasks, billing, notifications, export, stats, admin
+  blog/           блог
+  docs/           баримт бичиг
+prisma/           schema, migrations
+scripts/          set-admin, turso-migrate, full-schema
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Эхлүүлэх
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+cp .env.example .env        # доорх хувьсагчдыг бөглөнө
+npx prisma generate
+npx prisma migrate dev      # эсвэл local SQLite ашиглах
+npm run dev                 # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Орчны хувьсагч (`.env`)
 
-## Learn More
+```env
+# Local: better-sqlite3 файл, эсвэл Turso cloud
+DATABASE_URL="file:./dev.db"
+TURSO_DATABASE_URL=          # production (заавал биш)
+TURSO_AUTH_TOKEN=
 
-To learn more about Next.js, take a look at the following resources:
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# И-мэйл (заавал биш)
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Admin болгох
 
-## Deploy on Vercel
+```bash
+node scripts/set-admin.mjs your@email.com
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Vercel дээр deploy хийхэд production-д Turso (libSQL) ашиглана. `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`-ийг Vercel Environment Variables-д нэмнэ.

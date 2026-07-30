@@ -26,38 +26,3 @@
 ## Сурсан зүйл
 
 Энэ төслийг хийхдээ authentication-ийн бүх урсгалыг (нууц үг hash хийх, JWT signing/verification, session удирдлага, 2FA) өөрөө бичиж сурсан. Мөн QPay-тэй интеграц хийж, webhook secret баталгаажуулалт бүхий бодит төлбөрийн урсгал зохион бүтээж, Prisma-г local SQLite/production Turso хоёуланд нь адаптердах, Recharts ашиглан backend-ийн raw data-г ойлгомжтой график болгож харуулах дадлага хийсэн.
-
-## Эхлүүлэх
-
-```bash
-npm install
-cp .env.example .env        # доорх хувьсагчдыг бөглөнө
-npx prisma generate
-npx prisma migrate dev      # эсвэл local SQLite ашиглах
-npm run dev                 # http://localhost:3000
-```
-
-## Орчны хувьсагч (`.env`)
-
-```env
-DATABASE_URL="file:./dev.db"
-TURSO_DATABASE_URL=          # production (заавал биш)
-TURSO_AUTH_TOKEN=
-
-NEXTAUTH_SECRET=
-
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-```
-
-## Admin болгох
-
-```bash
-node scripts/set-admin.mjs your@email.com
-```
-
-## Deploy
-
-Vercel дээр deploy хийхэд production-д Turso (libSQL) ашиглана. `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`, `NEXTAUTH_SECRET`-ийг Vercel Environment Variables-д нэмнэ.
